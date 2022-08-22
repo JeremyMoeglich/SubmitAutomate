@@ -1,0 +1,47 @@
+{
+    "name": "sky_submit_automator",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "go": "esrun ./main.ts",
+        "chose": "python ./chose.py"
+    },
+    "type": "module",
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@digitak/esrun": "^3.2.10",
+        "@nodegui/nodegui": "^0.57.0",
+        "@types/body-parser": "^1.19.2",
+        "@types/cors": "^2.8.12",
+        "@types/inquirer": "^9.0.1",
+        "@types/lodash-es": "^4.17.6",
+        "@types/node": "^18.7.9",
+        "@types/node-imap": "^0.9.0",
+        "@types/prompt-sync": "^4.1.1",
+        "@types/prompts": "^2.0.14",
+        "@types/string-similarity": "^4.0.0",
+        "body-parser": "^1.20.0",
+        "cheerio": "1.0.0-rc.12",
+        "cors": "^2.8.5",
+        "dotenv": "^16.0.1",
+        "express": "^4.18.1",
+        "functional-utilities": "^1.16.0",
+        "inquirer": "^9.1.0",
+        "lodash-es": "^4.17.21",
+        "node-imap": "^0.9.6",
+        "pkg-up": "^4.0.0",
+        "playwright": "^1.25.0",
+        "prompt-sync": "^4.2.0",
+        "pythonia": "^1.0.0",
+        "string-similarity": "^4.0.4",
+        "typescript": "^4.7.4",
+        "ws": "7.5.1",
+        "zod": "^3.18.0"
+    },
+    "devDependencies": {
+        "@types/express": "^4.17.13"
+    }
+}
