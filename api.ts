@@ -14,6 +14,7 @@ const default_timeout = 0
 
 async function wait_for_load(page: Page) {
     await page.waitForLoadState('networkidle')
+    await sleep(50)
 }
 
 async function sleep(ms: number): Promise<void> {
@@ -114,7 +115,7 @@ async function use_existing_contract(page: Page) {
     {
         const selector = 'text="Vertrag Suchen"'
         await page.click(selector)
-        await sleep(2000)
+        await wait_for_load(page)
         await page.press(selector, 'Alt+KeyQ')
     }
     {
@@ -164,14 +165,13 @@ export async function upload_form(form: SkyFormData): Promise<void> {
         await sleep(1000)
         await handle_overview_section(page, form)
         console.log('Done')
-        await sleep_permanent()
     } finally {
         await page.close()
         await browser.close()
     }
 }
 
-async function field_input(page: Page, field_name: string, value: string) {
+async function field_input(page: Page, field_name: string, value: string, by = 'aria-label'): Promise<void> {
     const selector = `input[aria-label="${field_name}"]`
     await page.click(selector)
     console.log('Inputting', value, 'to', selector)
@@ -520,7 +520,6 @@ async function handle_contract_section(
             page,
             'table[summary="Promotions"] tbody'
         )
-        console.log(table)
         const obj = Object.fromEntries(
             table.map((row) => [row?.[2]?.[0], row?.[2]?.[1]])
         )
@@ -598,6 +597,13 @@ async function handle_customer_section(page: Page, form: SkyFormData) {
     } else {
         await field_input(page, 'Bankleitzahl', form.bankleitzahl)
         await field_input(page, 'Kontonummer', form.kontonummer)
+    }
+
+    if (form.kontoinhaber === 'abonnent ist nicht kontoinhaber') {
+        const vorname = form.kontoinhaber_info.split(' ').at(0) ?? error('No first name')
+        const nachname = form.kontoinhaber_info.split(' ').at(-1) ?? error('No last name')
+        await field_input(page, 'LastNameSubscriber_Label_1', nachname, 'aria-labelledby')
+        await field_input(page, 'FirstNameSubscriber_Label_1', vorname, 'aria-labelledby')
     }
 }
 
