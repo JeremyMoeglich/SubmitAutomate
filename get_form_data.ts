@@ -217,14 +217,28 @@ function to_form_data(text: string): SkyFormData {
             .map((v) => zubuchoptionen_table[v]) as zubuchoption_id[]
     })()
 
+    const [straße, hausnummer] = (() => {
+        const str = strp(obj.Straße)
+        const num = ostrp(obj.Hausnummer)
+        if (num === undefined) {
+            const regex = /([0-9][0-9]*([a-zA-Z]|))$/
+            const num_match = regex.exec(str)
+            if (num_match === null) {
+                return [str, undefined]
+            }
+            return [str.slice(0, num_match.index).trim(), num_match[0]]
+        }
+        return [str, num]
+    })()
+
     return {
         ...{
             anrede: anrede_clite(obj.Anrede),
             titel: title_clite(obj.Titel),
             vorname: strp(obj.Vorname),
             nachname: strp(obj.Nachname),
-            straße: strp(obj.Straße),
-            hausnummer: strp(obj.Hausnummer),
+            straße: straße,
+            hausnummer: hausnummer,
             adresszusatz: ostrp(obj.Adresszusatz),
             plz: strp(obj.Postleitzahl),
             ort: strp(obj.Ort)
@@ -320,3 +334,5 @@ export async function get_recent_forms(): Promise<FormEmail[]> {
     return form_emails
 }
 
+
+console.log((await get_recent_forms()).map((email) => email.form).reverse())
