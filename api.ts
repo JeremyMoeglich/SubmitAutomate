@@ -104,6 +104,7 @@ async function go_to_section(page: Page, section: section_name): Promise<void> {
 }
 
 async function create_contract(page: Page) {
+    throw new Error('Do not use this function')
     console.log('Creating new contract')
     await page.click('text="Neuer Vertrag"')
     await page.click('#NewRecord')
@@ -116,6 +117,7 @@ async function use_existing_contract(page: Page) {
         const selector = 'text="Vertrag Suchen"'
         await page.click(selector)
         await wait_for_load(page)
+        await sleep(2000)
         await page.press(selector, 'Alt+KeyQ')
     }
     {
