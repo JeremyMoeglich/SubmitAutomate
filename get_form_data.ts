@@ -227,7 +227,11 @@ function to_form_data(text: string): SkyFormData {
             hausnummer: strp(obj.Hausnummer),
             adresszusatz: ostrp(obj.Adresszusatz),
             plz: strp(obj.Postleitzahl),
-            ort: strp(obj.Ort),
+            ort: strp(obj.Ort)
+                .replace(/[^a-zA-Z0-9 \-]/g, ' ')
+                .trim()
+                .split(' ')
+                .at(-1),
         },
         ...(abweichende_lieferadresse
             ? {
@@ -315,3 +319,4 @@ export async function get_recent_forms(): Promise<FormEmail[]> {
     })
     return form_emails
 }
+
