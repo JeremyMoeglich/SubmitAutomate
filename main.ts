@@ -9,7 +9,7 @@ const root = get_root()
 const json_content = readFileSync(path.join(root, 'selected.json'), 'utf8')
 const chosen: string = JSON.parse(json_content).email
 
-const forms = await get_recent_forms()
+const forms = await get_recent_forms(true)
 
 const form = forms.find((f) => f.form.email === chosen)
 

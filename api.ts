@@ -21,9 +21,9 @@ async function sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-async function sleep_permanent(): Promise<never> {
-    return new Promise(() => {})
-}
+//async function sleep_permanent(): Promise<never> {
+//    return new Promise(() => {})
+//}
 
 async function ensure_login(page: Page): Promise<void> {
     await page.type(
@@ -103,11 +103,11 @@ async function go_to_section(page: Page, section: section_name): Promise<void> {
     await wait_for_load(page)
 }
 
-async function create_contract(page: Page) {
+async function create_contract(_page: Page) {
     throw new Error('Do not use this function')
-    console.log('Creating new contract')
-    await page.click('text="Neuer Vertrag"')
-    await page.click('#NewRecord')
+    //console.log('Creating new contract')
+    //await page.click('text="Neuer Vertrag"')
+    //await page.click('#NewRecord')
 }
 
 async function use_existing_contract(page: Page) {
@@ -174,7 +174,7 @@ export async function upload_form(form: SkyFormData): Promise<void> {
 }
 
 async function field_input(page: Page, field_name: string, value: string, by = 'aria-label'): Promise<void> {
-    const selector = `input[aria-label="${field_name}"]`
+    const selector = `input[${by}="${field_name}"]`
     await page.click(selector)
     console.log('Inputting', value, 'to', selector)
     await page.fill(selector, value)
