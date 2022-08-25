@@ -21,9 +21,9 @@ async function sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-//async function sleep_permanent(): Promise<never> {
-//    return new Promise(() => {})
-//}
+async function sleep_permanent(): Promise<never> {
+    return new Promise(() => {})
+}
 
 async function ensure_login(page: Page): Promise<void> {
     await page.type(
@@ -103,11 +103,10 @@ async function go_to_section(page: Page, section: section_name): Promise<void> {
     await wait_for_load(page)
 }
 
-async function create_contract(_page: Page) {
-    throw new Error('Do not use this function')
-    //console.log('Creating new contract')
-    //await page.click('text="Neuer Vertrag"')
-    //await page.click('#NewRecord')
+async function create_contract(page: Page) {
+    console.log('Creating new contract')
+    await page.click('text="Neuer Vertrag"')
+    await page.click('#NewRecord')
 }
 
 async function use_existing_contract(page: Page) {
@@ -133,7 +132,7 @@ async function use_existing_contract(page: Page) {
         await page.click(
             'table[summary="Alle Bestellungen"] tbody tr td >> visible=true',
             {
-                timeout: 2000,
+                timeout: 4000,
             }
         )
     } catch (e) {
@@ -167,6 +166,7 @@ export async function upload_form(form: SkyFormData): Promise<void> {
         await sleep(1000)
         await handle_overview_section(page, form)
         console.log('Done')
+        await sleep_permanent()
     } finally {
         await page.close()
         await browser.close()
@@ -525,7 +525,7 @@ async function handle_contract_section(
         const obj = Object.fromEntries(
             table.map((row) => [row?.[2]?.[0], row?.[2]?.[1]])
         )
-        await page.click(obj['12902'] ?? error('Angebot not found'))
+        await page.click(obj['12904'] ?? error('Angebot not found'))
         await close_table_popup(page)
     }
     {
