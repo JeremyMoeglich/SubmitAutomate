@@ -8,6 +8,7 @@ import {
     premium_package_set,
 } from './asset_library/offer_description'
 import { zubuchoption_id } from './asset_library/assets/zubuchoptionen'
+import { writeFileSync } from 'fs'
 
 function trim_spaces(text: string): string {
     while (text.startsWith(' ')) {
@@ -47,13 +48,13 @@ function get_object(text: string): Record<string, string | string[]> {
             if (!Array.isArray(current)) {
                 obj[key] = [
                     current ??
-                        (() => {
-                            throw "This won't happen"
-                        })(),
+                    (() => {
+                        throw "This won't happen"
+                    })(),
                 ]
             }
             if (value.trim()) {
-                ;(obj?.[key] as string[]).push(value)
+                ; (obj?.[key] as string[]).push(value)
             }
         } else if (key in obj) {
             obj[`${key}_${key_amount[key]}`] = value
@@ -107,33 +108,33 @@ function to_form_data(text: string): SkyFormData {
     const arrp = z.array(z.string()).parse
     const lite =
         <T extends string>(lst: T[]) =>
-        (v: unknown) => {
-            if (lst.includes(strp(v) as T)) {
-                return v as T
+            (v: unknown) => {
+                if (lst.includes(strp(v) as T)) {
+                    return v as T
+                }
+                throw new Error(`Expected one of ${lst.join(', ')}`)
             }
-            throw new Error(`Expected one of ${lst.join(', ')}`)
-        }
     const clite =
         <T extends string>(lst: T[]) =>
-        (v: unknown) => {
-            if (lst.length === 0) {
-                throw new Error('List is empty')
+            (v: unknown) => {
+                if (lst.length === 0) {
+                    throw new Error('List is empty')
+                }
+                const val = strp(v)
+                const similarities = lst.map((l, i) => [
+                    i,
+                    compareTwoStrings(val, l),
+                ])
+                const max = maxBy(similarities, ([, s]) => s)?.[0]
+                if (max === undefined) {
+                    throw new Error('Internal error')
+                }
+                const max_val = lst[max]
+                if (max_val === undefined) {
+                    throw new Error('Internal error')
+                }
+                return max_val
             }
-            const val = strp(v)
-            const similarities = lst.map((l, i) => [
-                i,
-                compareTwoStrings(val, l),
-            ])
-            const max = maxBy(similarities, ([, s]) => s)?.[0]
-            if (max === undefined) {
-                throw new Error('Internal error')
-            }
-            const max_val = lst[max]
-            if (max_val === undefined) {
-                throw new Error('Internal error')
-            }
-            return max_val
-        }
 
     const anrede_clite = clite(['herr', 'frau', 'keine_angabe'])
     const title_clite = clite([
@@ -158,7 +159,7 @@ function to_form_data(text: string): SkyFormData {
 
     const abweichende_lieferadresse =
         lite(['Ja', 'Nein'])(obj['Abweichende Lieferadresse gewünscht?']) ===
-        'Ja'
+            'Ja'
             ? true
             : false
     const sepa_vorhanden =
@@ -167,7 +168,7 @@ function to_form_data(text: string): SkyFormData {
             : false
     const kontoinhaber =
         clite(['Abonnent ist Kontoinhaber', 'Anderer'])(obj['Kontoinhaber']) ===
-        'Abonnent ist Kontoinhaber'
+            'Abonnent ist Kontoinhaber'
             ? true
             : false
     const empfangsart = clite(['satellit', 'internet', 'cabel'])(
@@ -230,7 +231,6 @@ function to_form_data(text: string): SkyFormData {
         }
         return [str, num]
     })()
-
     return {
         ...{
             anrede: anrede_clite(obj.Anrede),
@@ -242,32 +242,33 @@ function to_form_data(text: string): SkyFormData {
             adresszusatz: ostrp(obj.Adresszusatz),
             plz: strp(obj.Postleitzahl),
             ort: strp(obj.Ort)
-                .replace(/[^a-zA-Z0-9 \-]/g, ' ')
+                .toLocaleLowerCase()
+                .replace(/[\(\)-_\t]/g, ' ')
                 .trim()
                 .split(' ')
                 .at(-1),
         },
         ...(abweichende_lieferadresse
             ? {
-                  abweichende_lieferadresse: true as true,
-                  anrede_liefer: anrede_clite(obj.Anrede_2),
-                  titel_liefer: title_clite(obj.Titel_2),
-                  vorname_liefer: strp(obj.Vorname_2),
-                  nachname_liefer: strp(obj.Nachname_2),
-                  firma_liefer: ostrp(obj.Firma),
-                  straße_oder_packstation_liefer: strp(
-                      obj['Straße oder Packstation']
-                  ),
-                  hausnummer_oder_dhl_kundennummer_liefer: strp(
-                      obj['Hausnummer oder DHL Kundennummer']
-                  ),
-                  adresszusatz_liefer: ostrp(obj.Adresszusatz_2),
-                  plz_liefer: strp(obj.Postleitzahl_2),
-                  ort_liefer: strp(obj.Ort_2),
-              }
+                abweichende_lieferadresse: true as true,
+                anrede_liefer: anrede_clite(obj.Anrede_2),
+                titel_liefer: title_clite(obj.Titel_2),
+                vorname_liefer: strp(obj.Vorname_2),
+                nachname_liefer: strp(obj.Nachname_2),
+                firma_liefer: ostrp(obj.Firma),
+                straße_oder_packstation_liefer: strp(
+                    obj['Straße oder Packstation']
+                ),
+                hausnummer_oder_dhl_kundennummer_liefer: strp(
+                    obj['Hausnummer oder DHL Kundennummer']
+                ),
+                adresszusatz_liefer: ostrp(obj.Adresszusatz_2),
+                plz_liefer: strp(obj.Postleitzahl_2),
+                ort_liefer: strp(obj.Ort_2),
+            }
             : {
-                  abweichende_lieferadresse: false as false,
-              }),
+                abweichende_lieferadresse: false as false,
+            }),
         ...{
             geburtsdatum: strp(
                 obj['(Das Geburtsdatum muss dem des Abonnenten entsprechen)']
@@ -281,31 +282,31 @@ function to_form_data(text: string): SkyFormData {
         },
         ...(sepa_vorhanden
             ? {
-                  sepa_vorhanden: true as true,
-                  iban: strp(obj['IBAN']),
-                  bic: strp(obj['BIC']),
-              }
+                sepa_vorhanden: true as true,
+                iban: strp(obj['IBAN']),
+                bic: strp(obj['BIC']),
+            }
             : {
-                  sepa_vorhanden: false as false,
-                  bankleitzahl: strp(obj['Bankleitzahl (8-stellig)']),
-                  kontonummer: strp(obj.Kontonummer),
-              }),
+                sepa_vorhanden: false as false,
+                bankleitzahl: strp(obj['Bankleitzahl (8-stellig)']),
+                kontonummer: strp(obj.Kontonummer),
+            }),
         ...(kontoinhaber
             ? {
-                  kontoinhaber: 'abonnent ist kontoinhaber',
-              }
+                kontoinhaber: 'abonnent ist kontoinhaber',
+            }
             : {
-                  kontoinhaber: 'abonnent ist nicht kontoinhaber',
-                  kontoinhaber_info: strp(obj['Kontoinhaber (Name, Vorname)']),
-              }),
+                kontoinhaber: 'abonnent ist nicht kontoinhaber',
+                kontoinhaber_info: strp(obj['Kontoinhaber (Name, Vorname)']),
+            }),
         ...(empfangsart === 'cabel'
             ? {
-                  empfangsart: 'cable',
-                  cable_receiver: strp(obj['Ihr Kabelnetzbetreiber']),
-              }
+                empfangsart: 'cable',
+                cable_receiver: strp(obj['Ihr Kabelnetzbetreiber']),
+            }
             : {
-                  empfangsart,
-              }),
+                empfangsart,
+            }),
         ...{
             hardware: 'KEINE',
             payback_number: ostrp(obj['PAYBACK Kundennummer']),
@@ -322,7 +323,7 @@ export interface FormEmail extends Email {
 
 export async function get_recent_forms(): Promise<FormEmail[]> {
     const emails = (await get_emails()).filter((email) =>
-        email.title.includes('Ausgefülltes Formular')
+        email.title.includes('Ausgefülltes Formular') || email.title.includes("Submitted form")
     )
     const form_emails = emails.map((email) => {
         const form = to_form_data(email.body)
@@ -331,6 +332,8 @@ export async function get_recent_forms(): Promise<FormEmail[]> {
             form,
         }
     })
+
+
     return form_emails
 }
 
