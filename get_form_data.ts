@@ -293,7 +293,8 @@ function to_form_data(text: string): SkyFormData {
             adresszusatz: ostrp(obj.Adresszusatz, 'address_addition'),
             plz: strp(obj.Postleitzahl, 'zip_code'),
             ort: strp(obj.Ort, 'city')
-                .replace(/[^a-zA-Z0-9 \-]/g, ' ')
+                .toLocaleLowerCase()
+                .replace(/[\t-_\(\)\{\}\[\]]/g, ' ')
                 .trim()
                 .split(' ')
                 .at(-1),
