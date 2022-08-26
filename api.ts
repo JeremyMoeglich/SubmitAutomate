@@ -74,6 +74,10 @@ async function get_page(): Promise<[Page, Browser]> {
     const page = await context.newPage()
     page.setDefaultTimeout(default_timeout)
     try {
+        await page.on('dialog', async (dialog) => {
+            console.log('dialog', dialog.message())
+            await dialog.accept()
+        })
         await page.goto(process.env.SIEBEL_URL ?? error('SIEBEL_URL not set'))
         await ensure_login(page)
         popup_prevent(page)
@@ -108,7 +112,7 @@ async function create_contract(page: Page) {
     await page.click('#NewRecord')
 }
 
-async function use_existing_contract(page: Page) {
+async function get_contract(page: Page) {
     console.log('Using existing contract')
     await page.click('text="Neuer Vertrag"')
     {
@@ -153,7 +157,7 @@ export async function upload_form(form: SkyFormData): Promise<void> {
     console.log(form)
     const [page, browser] = await get_page()
     try {
-        await use_existing_contract(page)
+        await get_contract(page)
         console.log('Got contract')
         await handle_address_section(page, form)
         await sleep(1000)
