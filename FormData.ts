@@ -4,25 +4,24 @@ import {
     premium_package_set,
 } from './asset_library/offer_description'
 
-
 type title =
-	| 'Kein_Titel'
-	| 'ING'
-	| 'DIPL.ING'
-	| 'DIPL.KFM'
-	| 'MAG'
-	| 'DR'
-	| 'DR.DR'
-	| 'DR.MAG'
-	| 'HFRT'
-	| 'PROF'
-	| 'MAG.FH'
-	| 'UNIV.PROF'
-	| 'UNIV.DOZ'
-	| 'GRAF'
-	| 'FÜRST'
-	| 'FREIHERR'
-	| 'BARON';
+    | 'Kein_Titel'
+    | 'ING'
+    | 'DIPL.ING'
+    | 'DIPL.KFM'
+    | 'MAG'
+    | 'DR'
+    | 'DR.DR'
+    | 'DR.MAG'
+    | 'HFRT'
+    | 'PROF'
+    | 'MAG.FH'
+    | 'UNIV.PROF'
+    | 'UNIV.DOZ'
+    | 'GRAF'
+    | 'FÜRST'
+    | 'FREIHERR'
+    | 'BARON'
 
 export type SkyFormData = {
     anrede: 'herr' | 'frau' | 'keine_angabe'
