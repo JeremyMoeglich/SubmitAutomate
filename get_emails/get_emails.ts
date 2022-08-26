@@ -75,7 +75,11 @@ async function read_cache(): Promise<Email[] | undefined> {
             return JSON.parse(content)
         }
     } catch (err) {
-        if (hasProperty(err, 'code') && typeof err.code === 'string' && err.code === 'ENOENT') {
+        if (
+            hasProperty(err, 'code') &&
+            typeof err.code === 'string' &&
+            err.code === 'ENOENT'
+        ) {
             return undefined
         } else {
             throw err

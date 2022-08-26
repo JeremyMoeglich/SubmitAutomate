@@ -5,7 +5,8 @@
     "main": "index.js",
     "scripts": {
         "go": "esrun ./main.ts",
-        "chose": "python ./chose.py"
+        "chose": "python ./chose.py",
+        "format": "prettier --write ."
     },
     "type": "module",
     "keywords": [],

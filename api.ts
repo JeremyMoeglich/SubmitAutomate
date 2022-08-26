@@ -11,7 +11,6 @@ import { error } from 'functional-utilities'
 
 const default_timeout = 0
 
-
 async function wait_for_load(page: Page) {
     await page.waitForLoadState('networkidle')
     await sleep(50)
@@ -173,7 +172,12 @@ export async function upload_form(form: SkyFormData): Promise<void> {
     }
 }
 
-async function field_input(page: Page, field_name: string, value: string, by = 'aria-label'): Promise<void> {
+async function field_input(
+    page: Page,
+    field_name: string,
+    value: string,
+    by = 'aria-label'
+): Promise<void> {
     const selector = `input[${by}="${field_name}"]`
     await page.click(selector)
     console.log('Inputting', value, 'to', selector)
@@ -602,10 +606,22 @@ async function handle_customer_section(page: Page, form: SkyFormData) {
     }
 
     if (form.kontoinhaber === 'abonnent ist nicht kontoinhaber') {
-        const vorname = form.kontoinhaber_info.split(' ').at(0) ?? error('No first name')
-        const nachname = form.kontoinhaber_info.split(' ').at(-1) ?? error('No last name')
-        await field_input(page, 'LastNameSubscriber_Label_1', nachname, 'aria-labelledby')
-        await field_input(page, 'FirstNameSubscriber_Label_1', vorname, 'aria-labelledby')
+        const vorname =
+            form.kontoinhaber_info.split(' ').at(0) ?? error('No first name')
+        const nachname =
+            form.kontoinhaber_info.split(' ').at(-1) ?? error('No last name')
+        await field_input(
+            page,
+            'LastNameSubscriber_Label_1',
+            nachname,
+            'aria-labelledby'
+        )
+        await field_input(
+            page,
+            'FirstNameSubscriber_Label_1',
+            vorname,
+            'aria-labelledby'
+        )
     }
 }
 
