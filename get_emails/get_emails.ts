@@ -2,13 +2,15 @@ import { readFile, writeFile } from 'fs'
 import { hasProperty } from 'functional-utilities'
 import get_root from 'get_root'
 import path from 'path'
+import { get_appdir } from 'get_appdir'
 
 export interface Email {
     title: string
     body: string
 }
 
-const root = get_root()
+const project_root = get_root()
+const data_dir = await get_appdir()
 
 export async function get_emails(use_cache: boolean): Promise<Email[]> {
     if (use_cache) {
@@ -20,7 +22,7 @@ export async function get_emails(use_cache: boolean): Promise<Email[]> {
 
     const { python } = await import('pythonia')
     const get_emails_py = await python(
-        path.join(root, 'get_emails', 'get_emails.py')
+        path.join(project_root, 'get_emails', 'get_emails.py')
     )
     const emails = []
     const python_emails = await get_emails_py.get_emails()
@@ -69,7 +71,7 @@ async function async_write_file(
 async function read_cache(): Promise<Email[] | undefined> {
     try {
         const content = await async_read_file(
-            path.join(root, 'get_emails', 'cache.json')
+            path.join(data_dir, 'email_cache.json')
         )
         if (content) {
             return JSON.parse(content)
@@ -90,7 +92,7 @@ async function read_cache(): Promise<Email[] | undefined> {
 
 async function write_cache(emails: Email[]): Promise<void> {
     await async_write_file(
-        path.join(root, 'get_emails', 'cache.json'),
+        path.join(data_dir, 'email_cache.json'),
         JSON.stringify(emails)
     )
 }

@@ -394,7 +394,7 @@ export async function get_recent_forms(
     use_cache = false
 ): Promise<FormEmail[]> {
     const emails = (await get_emails(use_cache)).filter((email) => {
-        return email.title.includes('Ausgefülltes Formular')
+        return email.title.includes('Ausgefülltes Formular') || email.title.includes('Submitted form')
     })
     const form_emails = emails.map((email) => {
         const form = to_form_data(email.body)

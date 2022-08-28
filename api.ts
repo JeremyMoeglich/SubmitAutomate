@@ -8,6 +8,7 @@ import { zubuchoption_id } from './asset_library/assets/zubuchoptionen'
 import { Price } from './asset_library/priceable_asset_types'
 import { get_price } from './asset_library/prices'
 import { error } from 'functional-utilities'
+import download from 'download'
 
 const default_timeout = 0
 
@@ -21,6 +22,7 @@ async function sleep(ms: number): Promise<void> {
 }
 
 async function sleep_permanent(): Promise<never> {
+    console.log('Sleeping.. forever...')
     return new Promise(() => {})
 }
 
@@ -59,7 +61,7 @@ export async function popup_prevent(page: Page): Promise<void> {
     }
 }
 
-async function get_page(): Promise<[Page, Browser]> {
+async function get_page(log_path: string): Promise<[Page, Browser]> {
     const browser = await chromium.launch({
         headless: false,
         args: ['--start-maximized'],
@@ -75,8 +77,34 @@ async function get_page(): Promise<[Page, Browser]> {
     page.setDefaultTimeout(default_timeout)
     try {
         await page.on('dialog', async (dialog) => {
-            console.log('dialog', dialog.message())
-            await dialog.accept()
+            const message = await dialog.message()
+            console.log('dialog', message)
+            if (
+                message ===
+                'Bitte vergewissern Sie sich, dass der Drucker eingeschaltet ist'
+            ) {
+                console.log('clicking ok')
+                await dialog.accept()
+                let found_page = false
+                let max_retries = 10
+                while (!found_page && max_retries > 0) {
+                    max_retries--
+                    await context.waitForEvent('page')
+                    const pages = await context.pages()
+                    const pdf_page = pages.find((p) => p.url().includes('/siebel/pdf/contratti/'))
+                    // safe pdf to file
+                    if (pdf_page) {
+                        found_page = true
+                        const pdf_path = `${log_path}`
+                        await download(pdf_page.url(), pdf_path)
+                    }
+                }
+                if (!found_page) {
+                    throw new Error('Could not find pdf page')
+                }
+            } else {
+                await dialog.dismiss()
+            }
         })
         await page.goto(process.env.SIEBEL_URL ?? error('SIEBEL_URL not set'))
         await ensure_login(page)
@@ -153,9 +181,9 @@ async function get_contract(page: Page) {
     await go_to_section(page, 'Adresse')
 }
 
-export async function upload_form(form: SkyFormData): Promise<void> {
+export async function upload_form(form: SkyFormData, log_path: string): Promise<void> {
     console.log(form)
-    const [page, browser] = await get_page()
+    const [page, browser] = await get_page(log_path)
     try {
         await get_contract(page)
         console.log('Got contract')
