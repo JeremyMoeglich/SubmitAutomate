@@ -1,8 +1,7 @@
 import { assets } from './all_assets'
 
-export const todo_assets = assets.filter((v) => {
+export const todo_assets = assets.map((v) => {
     if (v.note.trim() === '[TODO]') {
-        return true
+        return v
     }
-    return false
 })

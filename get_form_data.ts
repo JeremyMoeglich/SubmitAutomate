@@ -8,7 +8,7 @@ import {
     premium_package_set,
 } from './asset_library/offer_description'
 import { zubuchoption_id } from './asset_library/assets/zubuchoptionen'
-import { writeFileSync } from 'fs'
+import { validateIBAN } from 'ibantools'
 
 function trim_spaces(text: string): string {
     while (text.startsWith(' ')) {
@@ -27,7 +27,7 @@ function error(message: string): never {
 function get_object(text: string): Record<string, string | string[]> {
     const lines = text
         .replace(/\n*\t/g, '\t')
-        .replace(/(?<=.)\n(?=[a-zA-Z](?!.*\t))/g, ';')
+        .replace(/(?<=.)\n(?=[a-zA-Z0-9](?!.*\t))/g, ';')
         .split('\n')
         .map((line) => trim_spaces(line))
     const obj: Record<string, string | string[]> = {}
@@ -216,6 +216,15 @@ function to_form_data(text: string): SkyFormData {
         'base_package_string'
     )
 
+    const process_telephone = (t: string) => {
+        t = t.replace(/[^0-9]/g, '')
+        if (t.startsWith('4917')) {
+            t = t.slice(2)
+            t = '0' + t
+        }
+        return t
+    }
+
     const base_package: base_package_set = clite(
         ['entertainment', 'entertainmentplus'],
         'base_package'
@@ -256,6 +265,8 @@ function to_form_data(text: string): SkyFormData {
                 'multiscreen',
             '18+ für Blue Movie --> ? 0, einmalige Versandpauschale 18+ PIN':
                 'plus18',
+            'Sky Go Plus (auf 3 Geräten gleichzeitig streamen und herunterladen) --> ? 5 mtl.':
+                'skygoplus',
         }
         return zubuchoptionen_lst
             .filter((v) => {
@@ -334,16 +345,32 @@ function to_form_data(text: string): SkyFormData {
                 'birth_date'
             ),
             email: strp(obj['Ihre E-Mail-Adresse'], 'email'),
-            telefon: strp(obj['Telefon (Kontaktnummer)'], 'phone'),
+            telefon: process_telephone(
+                strp(obj['Telefon (Kontaktnummer)'], 'phone')
+            ),
             telefon_weitere: strp(obj['Telefon (Weitere)'], 'phone_2')
                 .split(',')
-                .map((s) => s.trim())
+                .map((s) => process_telephone(s.trim()))
                 .filter((s) => s !== ''),
         },
         ...(sepa_vorhanden
             ? {
                   sepa_vorhanden: true as true,
-                  iban: strp(obj['IBAN'], 'iban'),
+                  iban: (() => {
+                      const iban = strp(obj['IBAN'], 'iban')
+                          .replace(/\s/g, '')
+                          .toUpperCase()
+                      const validation_result = validateIBAN(iban)
+                      if (validation_result.valid) {
+                          return iban
+                      } else {
+                          throw new Error(
+                              `Invalid IBAN: ${validation_result.errorCodes.join(
+                                  ', '
+                              )}`
+                          )
+                      }
+                  })(),
                   bic: strp(obj['BIC'], 'bic'),
               }
             : {
@@ -394,23 +421,24 @@ export async function get_recent_forms(
     use_cache = false
 ): Promise<FormEmail[]> {
     const emails = (await get_emails(use_cache)).filter((email) => {
-        return email.title.includes('Ausgefülltes Formular') || email.title.includes('Submitted form')
+        return (
+            email.title.includes('Ausgefülltes Formular') ||
+            email.title.includes('Submitted form')
+        )
     })
-    const form_emails = emails.map((email) => {
-        const form = to_form_data(email.body)
-        return {
-            ...email,
-            form,
-        }
-    })
+    const form_emails = emails
+        .map((email) => {
+            try {
+                const form = to_form_data(email.body)
+                return {
+                    ...email,
+                    form,
+                }
+            } catch (e) {
+                console.error(e)
+                return undefined
+            }
+        })
+        .filter((email) => email !== undefined) as FormEmail[]
     return form_emails
 }
-
-writeFileSync(
-    'recent_forms.json',
-    JSON.stringify(
-        (await get_recent_forms()).map((email) => email.form),
-        null,
-        2
-    )
-)

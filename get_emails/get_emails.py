@@ -27,8 +27,8 @@ def get_emails():
     )
     total = 10
     emails = imapper.listup(total, 'FROM "Sky Abodaten Eingang"')
-    if len(emails) < total:
-        imapper.change_mailbox('"Sky Aboformulare"')
-        emails += imapper.listup(total - len(emails), 'FROM "Sky Abodaten Eingang"')
+    #if len(emails) < total:
+    #    imapper.change_mailbox('"Sky Aboformulare"')
+    #    emails += imapper.listup(total - len(emails), 'FROM "Sky Abodaten Eingang"')
     return [Email(str(email.title), str(email.body)) for email in emails]
 
