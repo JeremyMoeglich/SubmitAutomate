@@ -32,6 +32,7 @@
         "download": "^8.0.0",
         "express": "^4.18.1",
         "functional-utilities": "^1.16.0",
+        "ibantools": "^4.1.6",
         "inquirer": "^9.1.0",
         "lodash-es": "^4.17.21",
         "node-imap": "^0.9.6",

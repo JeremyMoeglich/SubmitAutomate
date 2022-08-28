@@ -34,7 +34,7 @@ function to_price_string(v: number): string {
     return str
 }
 
-export const aktivierung = 0
+export const aktivierung = 29
 export const aktivierung_string = to_price_string(aktivierung)
 
 export const bonus = 20 as number
@@ -48,7 +48,7 @@ const price_table = map_entries(indexed_priceable_assets, ([key, value]) => [
 export function get_offer_price(
     offer: offer_description_type,
     assets: ReadonlyArray<priceable_asset_id>
-): Price {
+): Price | undefined {
     const current_price_table = cloneDeep(price_table)
 
     for (const overwrite of offer.overwrites) {
@@ -118,7 +118,7 @@ function chose_offer(
                 ),
             ] as const
     )
-    return minBy(prices, ([, price]) => price.jahr)?.[0]
+    return minBy(prices, ([, price]) => price.jahr)[0]
 }
 
 export function get_price(assets: ReadonlyArray<priceable_asset_id>): Price {

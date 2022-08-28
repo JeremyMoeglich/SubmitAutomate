@@ -46,18 +46,17 @@ with open(os.path.join(data_dir, "communicate.json"), "w") as f:
 cmd = f"cd {app_dir} && npm run go"
 # start command in foreground and store output in variable
 process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-all_output = ""
 
 if process.stdout is None:
     print("No output")
     exit(1)
 
-try:
-    for line in process.stdout:
-        all_output += line.decode("utf-8")
-        print(line.decode("utf-8"))
+output_file_path = os.path.join(log_directory, "output.txt")
 
-    process.wait()
-finally:
-    with open(os.path.join(log_directory, "output.txt"), "w") as f:
-        f.write(all_output)
+for line in process.stdout:
+    line_str = line.decode("utf-8")
+    print(line_str)
+    with open(output_file_path, "a") as f:
+        f.write(line_str)
+
+process.wait()

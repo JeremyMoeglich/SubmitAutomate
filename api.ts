@@ -91,7 +91,9 @@ async function get_page(log_path: string): Promise<[Page, Browser]> {
                     max_retries--
                     await context.waitForEvent('page')
                     const pages = await context.pages()
-                    const pdf_page = pages.find((p) => p.url().includes('/siebel/pdf/contratti/'))
+                    const pdf_page = pages.find((p) =>
+                        p.url().includes('/siebel/pdf/contratti/')
+                    )
                     // safe pdf to file
                     if (pdf_page) {
                         found_page = true
@@ -181,7 +183,10 @@ async function get_contract(page: Page) {
     await go_to_section(page, 'Adresse')
 }
 
-export async function upload_form(form: SkyFormData, log_path: string): Promise<void> {
+export async function upload_form(
+    form: SkyFormData,
+    log_path: string
+): Promise<void> {
     console.log(form)
     const [page, browser] = await get_page(log_path)
     try {
@@ -460,6 +465,7 @@ async function add_optional_package(page: Page, option_name: zubuchoption_id) {
         netflixstandard: 'HD NETFLIX 5€',
         trendsports: 'TRENDSPORTS 5,99€',
         netflixpremium: 'UHD NETFLIX 10€',
+        skygoplus: 'SKY GO PLUS',
     }
     if (!(option_name in names)) {
         console.log(`Unimplemented option ${option_name}`)
@@ -703,6 +709,7 @@ function estimate_price(form: SkyFormData): {
         'kids',
         'netflixstandard',
         'netflixpremium',
+        'skygoplus'
     ]
     const zubuchoptionen_price = get_price(
         form.zubuchoptionen.filter((o) => accounted_zubuchoptionen.includes(o))
