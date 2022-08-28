@@ -1,8 +1,11 @@
+from datetime import datetime
 import json
 import os
-import inquirer
-from get_emails.get_emails import get_emails
 import pathlib
+import subprocess
+import inquirer
+from get_appdir import get_appdir
+from get_emails.get_emails import get_emails
 
 
 def get_email_from_body(body):
@@ -24,7 +27,37 @@ if selected is None:
     print("No email selected")
     exit(1)
 
-dir_path = pathlib.Path(__file__).parent.absolute()
+data_dir = get_appdir()
+app_dir = pathlib.Path(__file__).parent.absolute()
 
-json.dump(selected, open(os.path.join(dir_path, "selected.json"), "w"))
-os.system(f"cd {dir_path} && npm run go")
+log_directory = os.path.abspath(
+    os.path.join(
+        data_dir,
+        "output",
+        datetime.now().strftime("%Y-%m-%d-%H-%M-%S") + "-" + selected["email"],
+    )
+)
+os.makedirs(log_directory)
+
+with open(os.path.join(data_dir, "communicate.json"), "w") as f:
+    json.dump({"email": selected["email"], "log_directory": log_directory}, f)
+
+
+cmd = f"cd {app_dir} && npm run go"
+# start command in foreground and store output in variable
+process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+all_output = ""
+
+if process.stdout is None:
+    print("No output")
+    exit(1)
+
+try:
+    for line in process.stdout:
+        all_output += line.decode("utf-8")
+        print(line.decode("utf-8"))
+
+    process.wait()
+finally:
+    with open(os.path.join(log_directory, "output.txt"), "w") as f:
+        f.write(all_output)

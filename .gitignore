@@ -1,3 +1,4 @@
 node_modules/**
 .env
-selected.json
+communicate.json
+get_emails/cache.json
