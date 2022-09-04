@@ -48,13 +48,13 @@ function get_object(text: string): Record<string, string | string[]> {
             if (!Array.isArray(current)) {
                 obj[key] = [
                     current ??
-                        (() => {
-                            throw "This won't happen"
-                        })(),
+                    (() => {
+                        throw "This won't happen"
+                    })(),
                 ]
             }
             if (value.trim()) {
-                ;(obj?.[key] as string[]).push(value)
+                ; (obj?.[key] as string[]).push(value)
             }
         } else if (key in obj) {
             obj[`${key}_${key_amount[key]}`] = value
@@ -120,45 +120,45 @@ function to_form_data(text: string): SkyFormData {
     const arrp = z.array(z.string()).parse
     const lite =
         <T extends string>(lst: T[], loc: string) =>
-        (v: unknown) => {
-            if (lst.includes(strp(v, loc) as T)) {
-                return v as T
-            }
-            throw new Error(
-                `Expected one of ${lst.join(', ')} was ${v} at ${loc}`
-            )
-        }
-    const clite =
-        <T extends string>(lst: T[], loc: string) =>
-        (v: unknown) => {
-            if (lst.length === 0) {
-                throw new Error('List is empty')
-            }
-            const val = strp(v, loc)
-            const similarities = lst.map(
-                (l, i) =>
-                    [
-                        i,
-                        compareTwoStrings(val.toLowerCase(), l.toLowerCase()),
-                    ] as [number, number]
-            )
-            const max = maxBy(similarities, ([, s]) => s)
-            if (max === undefined) {
-                throw new Error('Internal error')
-            }
-            if (max[1] < 0.6) {
+            (v: unknown) => {
+                if (lst.includes(strp(v, loc) as T)) {
+                    return v as T
+                }
                 throw new Error(
-                    `Clite prec to low ${max?.[1]}, Expected one of ${lst.join(
-                        ', '
-                    )} was ${val} at ${loc}`
+                    `Expected one of ${lst.join(', ')} was ${v} at ${loc}`
                 )
             }
-            const max_val = lst[max[0]]
-            if (max_val === undefined) {
-                throw new Error('Internal error')
+    const clite =
+        <T extends string>(lst: T[], loc: string) =>
+            (v: unknown) => {
+                if (lst.length === 0) {
+                    throw new Error('List is empty')
+                }
+                const val = strp(v, loc)
+                const similarities = lst.map(
+                    (l, i) =>
+                        [
+                            i,
+                            compareTwoStrings(val.toLowerCase(), l.toLowerCase()),
+                        ] as [number, number]
+                )
+                const max = maxBy(similarities, ([, s]) => s)
+                if (max === undefined) {
+                    throw new Error('Internal error')
+                }
+                if (max[1] < 0.6) {
+                    throw new Error(
+                        `Clite prec to low ${max?.[1]}, Expected one of ${lst.join(
+                            ', '
+                        )} was ${val} at ${loc}`
+                    )
+                }
+                const max_val = lst[max[0]]
+                if (max_val === undefined) {
+                    throw new Error('Internal error')
+                }
+                return max_val
             }
-            return max_val
-        }
 
     const anrede_clite = (v: unknown, loc: string) =>
         clite(['herr', 'frau', 'familie', 'firma', 'keine_angabe'], loc)(v)
@@ -267,6 +267,8 @@ function to_form_data(text: string): SkyFormData {
                 'plus18',
             'Sky Go Plus (auf 3 Geräten gleichzeitig streamen und herunterladen) --> ? 5 mtl.':
                 'skygoplus',
+            "Sky Kids --> ? 5 mtl.": "kids"
+
         }
         return zubuchoptionen_lst
             .filter((v) => {
@@ -312,33 +314,33 @@ function to_form_data(text: string): SkyFormData {
         },
         ...(abweichende_lieferadresse
             ? {
-                  abweichende_lieferadresse: true as true,
-                  anrede_liefer: anrede_clite(obj.Anrede_2, 'liefer_anrede'),
-                  titel_liefer: title_clite(obj.Titel_2),
-                  vorname_liefer: strp(obj.Vorname_2, 'liefer_first_name'),
-                  nachname_liefer: strp(obj.Nachname_2, 'liefer_last_name'),
-                  firma_liefer: ostrp(obj.Firma, 'liefer_company'),
-                  straße_oder_packstation_liefer: strp(
-                      obj['Straße oder Packstation'],
-                      'liefer_street_or_packstation'
-                  ),
-                  hausnummer_oder_dhl_kundennummer_liefer: strp(
-                      alt([
-                          'Hausnummer oder DHL Kundennummer',
-                          'DHL Kundennummer',
-                      ]),
-                      'house_number_or_dhl_customer_number'
-                  ),
-                  adresszusatz_liefer: ostrp(
-                      obj.Adresszusatz_2,
-                      'liefer_addition'
-                  ),
-                  plz_liefer: strp(obj.Postleitzahl_2, 'liefer_zip_code'),
-                  ort_liefer: strp(obj.Ort_2, 'liefer_city'),
-              }
+                abweichende_lieferadresse: true as true,
+                anrede_liefer: anrede_clite(obj.Anrede_2, 'liefer_anrede'),
+                titel_liefer: title_clite(obj.Titel_2),
+                vorname_liefer: strp(obj.Vorname_2, 'liefer_first_name'),
+                nachname_liefer: strp(obj.Nachname_2, 'liefer_last_name'),
+                firma_liefer: ostrp(obj.Firma, 'liefer_company'),
+                straße_oder_packstation_liefer: strp(
+                    obj['Straße oder Packstation'],
+                    'liefer_street_or_packstation'
+                ),
+                hausnummer_oder_dhl_kundennummer_liefer: strp(
+                    alt([
+                        'Hausnummer oder DHL Kundennummer',
+                        'DHL Kundennummer',
+                    ]),
+                    'house_number_or_dhl_customer_number'
+                ),
+                adresszusatz_liefer: ostrp(
+                    obj.Adresszusatz_2,
+                    'liefer_addition'
+                ),
+                plz_liefer: strp(obj.Postleitzahl_2, 'liefer_zip_code'),
+                ort_liefer: strp(obj.Ort_2, 'liefer_city'),
+            }
             : {
-                  abweichende_lieferadresse: false as false,
-              }),
+                abweichende_lieferadresse: false as false,
+            }),
         ...{
             geburtsdatum: strp(
                 obj['(Das Geburtsdatum muss dem des Abonnenten entsprechen)'],
@@ -355,51 +357,51 @@ function to_form_data(text: string): SkyFormData {
         },
         ...(sepa_vorhanden
             ? {
-                  sepa_vorhanden: true as true,
-                  iban: (() => {
-                      const iban = strp(obj['IBAN'], 'iban')
-                          .replace(/\s/g, '')
-                          .toUpperCase()
-                      const validation_result = validateIBAN(iban)
-                      if (validation_result.valid) {
-                          return iban
-                      } else {
-                          throw new Error(
-                              `Invalid IBAN: ${validation_result.errorCodes.join(
-                                  ', '
-                              )}`
-                          )
-                      }
-                  })(),
-                  bic: strp(obj['BIC'], 'bic'),
-              }
+                sepa_vorhanden: true as true,
+                iban: (() => {
+                    const iban = strp(obj['IBAN'], 'iban')
+                        .replace(/\s/g, '')
+                        .toUpperCase()
+                    const validation_result = validateIBAN(iban)
+                    if (validation_result.valid) {
+                        return iban
+                    } else {
+                        throw new Error(
+                            `Invalid IBAN: ${validation_result.errorCodes.join(
+                                ', '
+                            )}`
+                        )
+                    }
+                })(),
+                bic: strp(obj['BIC'], 'bic'),
+            }
             : {
-                  sepa_vorhanden: false as false,
-                  bankleitzahl: strp(
-                      obj['Bankleitzahl (8-stellig)'],
-                      'bank_code'
-                  ),
-                  kontonummer: strp(obj.Kontonummer, 'account_number'),
-              }),
+                sepa_vorhanden: false as false,
+                bankleitzahl: strp(
+                    obj['Bankleitzahl (8-stellig)'],
+                    'bank_code'
+                ),
+                kontonummer: strp(obj.Kontonummer, 'account_number'),
+            }),
         ...(kontoinhaber
             ? {
-                  kontoinhaber: 'abonnent ist kontoinhaber',
-              }
+                kontoinhaber: 'abonnent ist kontoinhaber',
+            }
             : {
-                  kontoinhaber: 'abonnent ist nicht kontoinhaber',
-                  kontoinhaber_info: kontoinhaber_info,
-              }),
+                kontoinhaber: 'abonnent ist nicht kontoinhaber',
+                kontoinhaber_info: kontoinhaber_info,
+            }),
         ...(empfangsart === 'cabel'
             ? {
-                  empfangsart: 'cable',
-                  cable_receiver: strp(
-                      obj['Ihr Kabelnetzbetreiber'],
-                      'cable_receiver'
-                  ),
-              }
+                empfangsart: 'cable',
+                cable_receiver: strp(
+                    obj['Ihr Kabelnetzbetreiber'],
+                    'cable_receiver'
+                ),
+            }
             : {
-                  empfangsart,
-              }),
+                empfangsart,
+            }),
         ...{
             hardware: 'KEINE',
             payback_number: ostrp(

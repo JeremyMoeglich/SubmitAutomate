@@ -19,7 +19,7 @@ const { email, log_directory } = z
     })
     .parse(JSON.parse(json_content))
 
-const forms = await get_recent_forms(true)
+const forms = await get_recent_forms(false)
 
 const form =
     forms.find((f) => f.form.email === email) ?? error("Email doesn't exist")
