@@ -23,7 +23,7 @@ async function sleep(ms: number): Promise<void> {
 
 async function sleep_permanent(): Promise<never> {
     console.log('Sleeping.. forever...')
-    return new Promise(() => {})
+    return new Promise(() => { })
 }
 
 async function ensure_login(page: Page): Promise<void> {
@@ -279,9 +279,8 @@ async function extract_table(
         for (let j = 0; j < cells.length; j++) {
             const cell = cells[j] ?? error('Cell not found')
             const value = await cell.evaluate((cell) => cell.textContent)
-            const selector = `${table_selector} tr:nth-child(${
-                i + 1
-            }) td:nth-child(${j + 1})`
+            const selector = `${table_selector} tr:nth-child(${i + 1
+                }) td:nth-child(${j + 1})`
             row_result.push([value, selector] as [string, string])
         }
         result.push(row_result)
@@ -374,7 +373,7 @@ async function enter_location(
         }
         await page.click(
             plz_lst[plz_lst_index]?.[1] ??
-                error('One of these is likely wrong "Ort", "Plz", "Straße"')
+            error('One of these is likely wrong "Ort", "Plz", "Straße"')
         )
         await close_table_popup(page)
         await field_input(page, 'Straße', location.straße)
@@ -434,7 +433,9 @@ async function handle_address_section(
         await field_input(page, 'Hausnummer', form.hausnummer)
         await field_input(page, 'Adresszusatz', form.adresszusatz ?? '')
     }
-    await field_input(page, 'Hardware des Kunden', form.hardware)
+    if (form.empfangsart !== "internet") {
+        await field_input(page, 'Hardware des Kunden', form.hardware)
+    }
     await field_input(
         page,
         'Vertragstyp',
@@ -481,7 +482,7 @@ async function add_optional_package(page: Page, option_name: zubuchoption_id) {
     )
     await page.click(
         obj[names[option_name] ?? error('Internal indexing error')] ??
-            error(`${option_name} not in table`)
+        error(`${option_name} not in table`)
     )
     await page.click('button[title="Verfügbare Services:Hinzufügen"]')
 }
