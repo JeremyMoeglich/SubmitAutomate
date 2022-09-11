@@ -27,7 +27,7 @@ function error(message: string): never {
 function get_object(text: string): Record<string, string | string[]> {
     const lines = text
         .replace(/\n*\t/g, '\t')
-        .replace(/(?<=.)\n(?=[a-zA-Z0-9](?!.*\t))/g, ';')
+        .replace(/(?<=.)\n(?=[a-zA-Z0-9](?!.*\t))/g, ';;;')
         .split('\n')
         .map((line) => trim_spaces(line))
     const obj: Record<string, string | string[]> = {}
@@ -70,17 +70,17 @@ function get_object(text: string): Record<string, string | string[]> {
                     key,
                     value.flatMap((v) =>
                         v
-                            .split(';')
+                            .split(';;;')
                             .map((e) => e.trim())
                             .filter((e) => e !== '')
                     ),
                 ] as [string, string[]]
             } else {
-                if (value.includes(';')) {
+                if (value.includes(';;;')) {
                     return [
                         key,
                         value
-                            .split(';')
+                            .split(';;;')
                             .map((e) => e.trim())
                             .filter((e) => e !== ''),
                     ] as [string, string[]]
