@@ -217,6 +217,7 @@ async function field_input(
 ): Promise<void> {
     const selector = `input[${by}="${field_name}"]`
     await page.click(selector)
+
     console.log('Inputting', value, 'to', selector)
     await page.fill(selector, value)
     await page.press(selector, 'Enter')
@@ -633,8 +634,11 @@ async function handle_customer_section(page: Page, form: SkyFormData) {
         form.sepa_vorhanden
     )
     if (form.sepa_vorhanden) {
-        await field_input(page, 'IBAN', form.iban)
-        await sleep(1000)
+        const iban_name = "IBAN"
+        await field_input(page, iban_name, "")
+        await sleep(3000)
+        await field_input(page, iban_name, form.iban)
+        await sleep(3000)
         const field_value = await get_field_value(page, 'BIC')
         if (field_value !== form.bic) {
             throw new Error(`BIC ${form.bic} does not match ${field_value}`)
