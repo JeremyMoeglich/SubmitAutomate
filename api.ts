@@ -569,7 +569,7 @@ async function handle_contract_section(
         const obj = Object.fromEntries(
             table.map((row) => [row?.[2]?.[0], row?.[2]?.[1]])
         )
-        await page.click(obj['12924'] ?? error('Angebot not found'))
+        await page.click(obj['12944'] ?? error('Angebot not found'))
         await close_table_popup(page)
     }
     {
