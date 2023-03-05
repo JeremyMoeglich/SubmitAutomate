@@ -257,6 +257,7 @@ function to_form_data(text: string): SkyFormData {
             'DAZN jährlich --> ? 18,99 mtl. (Bestes Preisleistungsverhältnis, 12 Monatsraten)':
                 'dazn_yearly',
             'Netflix HD und 2 Geräte Upgrade --> ? 5 mtl.': 'netflixstandard',
+            'Netflix 2 Geräte Upgrade --> ? 5 mtl.': 'netflixstandard',
             'HD+ 6 Monate gratis, danach mtl. ? 6 (monatlich kündbar)':
                 'hdplus',
             'Free TV HD-Senderpaket mit RTL, ProSiebenSat.1, ARD uvm. (automatisch inklusive)':
@@ -366,11 +367,11 @@ function to_form_data(text: string): SkyFormData {
                     if (validation_result.valid) {
                         return iban
                     } else {
-                        throw new Error(
-                            `Invalid IBAN: ${validation_result.errorCodes.join(
-                                ', '
-                            )}`
-                        )
+                        console.log(`Invalid IBAN: ${validation_result.errorCodes.join(
+                            ', '
+                        )}`)
+                        console.log(`IBAN was ${iban}`)
+                        return iban
                     }
                 })(),
                 bic: strp(obj['BIC'], 'bic'),
@@ -437,6 +438,8 @@ export async function get_recent_forms(
                     form,
                 }
             } catch (e) {
+                console.error(email.body)
+                console.log("to_form_data failed to parse")
                 console.error(e)
                 return undefined
             }

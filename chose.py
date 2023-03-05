@@ -19,6 +19,9 @@ emails = [
     get_email_from_body(v.body) for v in get_emails() if get_email_from_body(v.body)
 ]
 
+data_dir = get_appdir()
+print(data_dir)
+
 selected = inquirer.prompt(
     [inquirer.List("email", message="Select an email", choices=emails)]
 )
@@ -27,7 +30,6 @@ if selected is None:
     print("No email selected")
     exit(1)
 
-data_dir = get_appdir()
 app_dir = pathlib.Path(__file__).parent.absolute()
 
 log_directory = os.path.abspath(
@@ -37,6 +39,8 @@ log_directory = os.path.abspath(
         datetime.now().strftime("%Y-%m-%d-%H-%M-%S") + "-" + selected["email"],
     )
 )
+
+
 os.makedirs(log_directory)
 
 with open(os.path.join(data_dir, "communicate.json"), "w") as f:

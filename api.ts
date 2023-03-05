@@ -216,6 +216,14 @@ async function field_input(
     by = 'aria-label'
 ): Promise<void> {
     const selector = `input[${by}="${field_name}"]`
+    await custom_field_input(page, selector, value)
+}
+
+async function custom_field_input(
+    page: Page,
+    selector: string,
+    value: string,
+): Promise<void> {
     await page.click(selector)
 
     console.log('Inputting', value, 'to', selector)
@@ -489,6 +497,7 @@ async function add_optional_package(page: Page, option_name: zubuchoption_id) {
 }
 
 async function ccheck(page: Page, selector: string, bool: boolean) {
+    console.log("Checking", selector, bool)
     if (bool) {
         await page.check(selector)
     } else {
@@ -523,7 +532,7 @@ async function add_optional_packages(
         }
     }
 
-    await ccheck(page, "input[aria-label='UHD-Sender']", 'uhd' in option_names)
+    await ccheck(page, "input[aria-label='UHD-Sender']", option_names.includes("uhd"))
 
     if ('dazn_generic' in option_names) {
         throw new Error('dazn_generic is not valid')
@@ -560,6 +569,12 @@ async function handle_contract_section(
     await go_to_section(page, 'Vertrag')
     await sleep(2000)
     {
+        await open_field_table(page, "Verkäufer")
+        await custom_field_input(page, "td.siebui-popup-filter > span.siebui-popup-button > input.siebui-ctrl-input", process.env.SIEBEL_NAME ?? error('SIEBEL_NAME not set'))
+        await close_table_popup(page)
+        await field_input(page, "Gutscheinnummer", process.env.SIEBEL_KEY ?? error('SIEBEL_KEY not set'))
+    }
+    {
         // Angebot
         await open_field_table(page, 'Angebot')
         const table = await extract_table(
@@ -569,7 +584,7 @@ async function handle_contract_section(
         const obj = Object.fromEntries(
             table.map((row) => [row?.[2]?.[0], row?.[2]?.[1]])
         )
-        await page.click(obj['12944'] ?? error('Angebot not found'))
+        await page.click(obj['12939'] ?? error('Angebot not found'))
         await close_table_popup(page)
     }
     {
@@ -639,9 +654,14 @@ async function handle_customer_section(page: Page, form: SkyFormData) {
         await sleep(3000)
         await field_input(page, iban_name, form.iban)
         await sleep(3000)
-        const field_value = await get_field_value(page, 'BIC')
-        if (field_value !== form.bic) {
-            throw new Error(`BIC ${form.bic} does not match ${field_value}`)
+        try {
+            const field_value = await get_field_value(page, 'BIC')
+            if (field_value !== form.bic && form.bic.trim() !== "") {
+                throw new Error(`BIC ${form.bic} does not match ${field_value}`)
+            }
+        } catch (e) {
+            console.error(e)
+            await sleep_permanent()
         }
     } else {
         await field_input(page, 'Bankleitzahl', form.bankleitzahl)
