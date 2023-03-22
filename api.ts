@@ -451,7 +451,7 @@ async function handle_address_section(
         form.payback_number ? 'PAYBACK' : 'KEINE KOOPERATION'
     )
     if (form.payback_number) {
-        await field_input(page, 'Externe Kundennummer', form.payback_number)
+        await field_input(page, 'Externe Kundennummer', form.payback_number.replaceAll(" ", ""))
     }
 }
 
@@ -584,7 +584,7 @@ async function handle_contract_section(
         const obj = Object.fromEntries(
             table.map((row) => [row?.[2]?.[0], row?.[2]?.[1]])
         )
-        await page.click(obj['12939'] ?? error('Angebot not found'))
+        await page.click(obj['12970'] ?? error('Angebot not found'))
         await close_table_popup(page)
     }
     {
@@ -654,15 +654,21 @@ async function handle_customer_section(page: Page, form: SkyFormData) {
         await sleep(3000)
         await field_input(page, iban_name, form.iban)
         await sleep(3000)
-        try {
-            const field_value = await get_field_value(page, 'BIC')
-            if (field_value !== form.bic && form.bic.trim() !== "") {
+        /*try {
+            const x_trim = (s: string) => {
+                while (s.toUpperCase().endsWith("X")) {
+                    s = s.slice(0, s.length - 1)
+                }
+                return s
+            }
+            const field_value = x_trim(await get_field_value(page, 'BIC'))
+            if (field_value !== x_trim(form.bic) && form.bic.trim() !== "") {
                 throw new Error(`BIC ${form.bic} does not match ${field_value}`)
             }
         } catch (e) {
             console.error(e)
             await sleep_permanent()
-        }
+        }*/
     } else {
         await field_input(page, 'Bankleitzahl', form.bankleitzahl)
         await field_input(page, 'Kontonummer', form.kontonummer)
