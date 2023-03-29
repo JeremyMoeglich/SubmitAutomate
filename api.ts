@@ -7,7 +7,7 @@ import { base_package_set } from './asset_library/offer_description'
 import { zubuchoption_id } from './asset_library/assets/zubuchoptionen'
 import { Price } from './asset_library/priceable_asset_types'
 import { get_price } from './asset_library/prices'
-import { error } from 'functional-utilities'
+import { panic } from 'functional-utilities'
 import download from 'download'
 
 const default_timeout = 0
@@ -29,11 +29,11 @@ async function sleep_permanent(): Promise<never> {
 async function ensure_login(page: Page): Promise<void> {
     await page.type(
         '#s_swepi_1',
-        process.env.SIEBEL_USERNAME ?? error('SIEBEL_USERNAME not set')
+        process.env.SIEBEL_USERNAME ?? panic('SIEBEL_USERNAME not set')
     )
     await page.type(
         '#s_swepi_2',
-        process.env.SIEBEL_PASSWORD ?? error('SIEBEL_PASSWORD not set')
+        process.env.SIEBEL_PASSWORD ?? panic('SIEBEL_PASSWORD not set')
     )
     await page.click('#s_swepi_22')
 }
@@ -108,7 +108,7 @@ async function get_page(log_path: string): Promise<[Page, Browser]> {
                 await dialog.dismiss()
             }
         })
-        await page.goto(process.env.SIEBEL_URL ?? error('SIEBEL_URL not set'))
+        await page.goto(process.env.SIEBEL_URL ?? panic('SIEBEL_URL not set'))
         await ensure_login(page)
         popup_prevent(page)
     } catch (e) {
@@ -278,15 +278,15 @@ async function extract_table(
     }
     await wait_for_load(page)
     await sleep(100)
-    const table = (await page.$(table_selector)) ?? error('Table not found')
+    const table = (await page.$(table_selector)) ?? panic('Table not found')
     const rows = await table.$$('tr')
     const result = []
     for (let i = 0; i < rows.length; i++) {
-        const row = rows[i] ?? error('Row not found')
+        const row = rows[i] ?? panic('Row not found')
         const cells = await row.$$('td')
         const row_result = []
         for (let j = 0; j < cells.length; j++) {
-            const cell = cells[j] ?? error('Cell not found')
+            const cell = cells[j] ?? panic('Cell not found')
             const value = await cell.evaluate((cell) => cell.textContent)
             const selector = `${table_selector} tr:nth-child(${i + 1
                 }) td:nth-child(${j + 1})`
@@ -325,7 +325,7 @@ async function enter_location(
                 )
                 plz_lst = sortBy(
                     table
-                        .map((row) => row[3] ?? error('Plz not in table'))
+                        .map((row) => row[3] ?? panic('Plz not in table'))
                         .filter(([v, _]) => v.trim() !== ''),
                     ([v, _]) => -compareTwoStrings(v, location.plz)
                 )
@@ -352,7 +352,7 @@ async function enter_location(
                             )
                         )
                         await page.click(
-                            obj[location.plz] ?? error('PLZ not in table')
+                            obj[location.plz] ?? panic('PLZ not in table')
                         )
                         await close_table_popup(page)
                     } catch (e) {
@@ -382,7 +382,7 @@ async function enter_location(
         }
         await page.click(
             plz_lst[plz_lst_index]?.[1] ??
-            error('One of these is likely wrong "Ort", "Plz", "Straße"')
+            panic('One of these is likely wrong "Ort", "Plz", "Straße"')
         )
         await close_table_popup(page)
         await field_input(page, 'Straße', location.straße)
@@ -397,7 +397,7 @@ async function enter_location(
                     (row) => [row?.[3]?.[0], row?.[3]?.[1]] as [string, string]
                 )
             )
-            await page.click(obj[location.plz] ?? error('PLZ not in table'))
+            await page.click(obj[location.plz] ?? panic('PLZ not in table'))
             await close_table_popup(page)
             await sleep(200)
         } catch (e) {
@@ -461,7 +461,7 @@ function convert_base_package(package_id: base_package_set | '') {
             entertainment: 'ENTERTAINMENT',
             entertainmentplus: 'ENTERTAINMENT PLUS',
             '': undefined,
-        }[package_id] ?? error()
+        }[package_id] ?? panic()
     )
 }
 
@@ -490,8 +490,8 @@ async function add_optional_package(page: Page, option_name: zubuchoption_id) {
         table.map((row) => [row?.[1]?.[0], row?.[1]?.[1]] as [string, string])
     )
     await page.click(
-        obj[names[option_name] ?? error('Internal indexing error')] ??
-        error(`${option_name} not in table`)
+        obj[names[option_name] ?? panic('Internal indexing error')] ??
+        panic(`${option_name} not in table`)
     )
     await page.click('button[title="Verfügbare Services:Hinzufügen"]')
 }
@@ -570,9 +570,9 @@ async function handle_contract_section(
     await sleep(2000)
     {
         await open_field_table(page, "Verkäufer")
-        await custom_field_input(page, "td.siebui-popup-filter > span.siebui-popup-button > input.siebui-ctrl-input", process.env.SIEBEL_NAME ?? error('SIEBEL_NAME not set'))
+        await custom_field_input(page, "td.siebui-popup-filter > span.siebui-popup-button > input.siebui-ctrl-input", process.env.SIEBEL_NAME ?? panic('SIEBEL_NAME not set'))
         await close_table_popup(page)
-        await field_input(page, "Gutscheinnummer", process.env.SIEBEL_KEY ?? error('SIEBEL_KEY not set'))
+        await field_input(page, "Gutscheinnummer", process.env.SIEBEL_KEY ?? panic('SIEBEL_KEY not set'))
     }
     {
         // Angebot
@@ -584,7 +584,7 @@ async function handle_contract_section(
         const obj = Object.fromEntries(
             table.map((row) => [row?.[2]?.[0], row?.[2]?.[1]])
         )
-        await page.click(obj['12970'] ?? error('Angebot not found'))
+        await page.click(obj['12970'] ?? panic('Angebot not found'))
         await close_table_popup(page)
     }
     {
@@ -630,13 +630,13 @@ async function handle_customer_section(page: Page, form: SkyFormData) {
         await field_input(
             page,
             'Telefonnummer 2',
-            form.telefon_weitere[0] ?? error('No second phone number')
+            form.telefon_weitere[0] ?? panic('No second phone number')
         )
         if (form.telefon_weitere.length === 2) {
             await field_input(
                 page,
                 'Telefonnummer 3',
-                form.telefon_weitere[1] ?? error('No third phone number')
+                form.telefon_weitere[1] ?? panic('No third phone number')
             )
         } else if (form.telefon_weitere.length > 2) {
             throw new Error('Too many phone numbers')
@@ -676,9 +676,9 @@ async function handle_customer_section(page: Page, form: SkyFormData) {
 
     if (form.kontoinhaber === 'abonnent ist nicht kontoinhaber') {
         const vorname =
-            form.kontoinhaber_info.split(' ').at(0) ?? error('No first name')
+            form.kontoinhaber_info.split(' ').at(0) ?? panic('No first name')
         const nachname =
-            form.kontoinhaber_info.split(' ').at(-1) ?? error('No last name')
+            form.kontoinhaber_info.split(' ').at(-1) ?? panic('No last name')
         await field_input(
             page,
             'LastNameSubscriber_Label_1',
@@ -781,9 +781,9 @@ async function handle_overview_section(page: Page, form: SkyFormData) {
         )
         const price_obj = Object.fromEntries(
             table.map((row) => [
-                (row[1] ?? error('Product column missing'))[0],
+                (row[1] ?? panic('Product column missing'))[0],
                 Number.parseFloat(
-                    (row[2] ?? error('Price column missing'))[0].replace(
+                    (row[2] ?? panic('Price column missing'))[0].replace(
                         ',',
                         '.'
                     )
@@ -792,7 +792,7 @@ async function handle_overview_section(page: Page, form: SkyFormData) {
         )
         const program_package = get_program_package(form)
         const actual_price =
-            price_obj[program_package] ?? error('Product not found')
+            price_obj[program_package] ?? panic('Product not found')
         if (actual_price !== estimate.package_price.monat) {
             await page.pause()
             throw new Error(

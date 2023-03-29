@@ -4,7 +4,7 @@ import { readFileSync, writeFileSync } from 'fs'
 import { upload_form } from 'api'
 import { z } from 'zod'
 import { get_appdir } from 'get_appdir'
-import { error } from 'functional-utilities'
+import { panic } from 'functional-utilities'
 
 const data_dir = await get_appdir()
 
@@ -22,7 +22,7 @@ const { email, log_directory } = z
 const forms = await get_recent_forms(false)
 
 const form =
-    forms.find((f) => f.form.email === email) ?? error("Email doesn't exist")
+    forms.find((f) => f.form.email === email) ?? panic("Email doesn't exist")
 
 writeFileSync(path.join(log_directory, 'form.json'), JSON.stringify(form.form))
 writeFileSync(path.join(log_directory, 'body.txt'), form.body)

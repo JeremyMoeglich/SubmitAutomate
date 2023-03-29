@@ -1,5 +1,5 @@
 import { readFile, writeFile } from 'fs'
-import { hasProperty } from 'functional-utilities'
+import { has_property } from 'functional-utilities'
 import get_root from 'get_root'
 import path from 'path'
 import { get_appdir } from 'get_appdir'
@@ -78,7 +78,7 @@ async function read_cache(): Promise<Email[] | undefined> {
         }
     } catch (err) {
         if (
-            hasProperty(err, 'code') &&
+            has_property(err, 'code') &&
             typeof err.code === 'string' &&
             err.code === 'ENOENT'
         ) {
