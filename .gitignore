@@ -2,3 +2,5 @@ node_modules/**
 .env
 communicate.json
 get_emails/cache.json
+recent_forms.json
+data.txt
