@@ -44,7 +44,7 @@ dependencies:
   '@types/node': 18.15.11
   '@types/node-imap': 0.9.0
   '@types/prompt-sync': 4.2.0
-  '@types/prompts': 2.4.3
+  '@types/prompts': 2.4.4
   '@types/string-similarity': 4.0.0
   body-parser: 1.20.2
   cheerio: 1.0.0-rc.12
@@ -63,7 +63,7 @@ dependencies:
   pythonia: 1.0.1_ws@8.13.0
   string-similarity: 4.0.4
   tsx: 3.12.6
-  typescript: 5.0.2
+  typescript: 5.0.3
   ws: 8.13.0
   zod: 3.21.4
 
@@ -449,8 +449,8 @@ packages:
     resolution: {integrity: sha512-5RPQYDT7MNkt+vq6xp58tSPx4THANyQcBSaw3Ni+KV7MUAgvUUbmCsQmcPVrcc8dwuURSPixz2qTJdJF6ABSKw==}
     dev: false
 
-  /@types/prompts/2.4.3:
-    resolution: {integrity: sha512-qpzXlxoPv67TCtTCS+SwYmz1M+G5ARTrE5YVlrZPy/xBD36dzLqiJLDzOzsMXkcJYq6+6UkWqFwtLAOjsfec5Q==}
+  /@types/prompts/2.4.4:
+    resolution: {integrity: sha512-p5N9uoTH76lLvSAaYSZtBCdEXzpOOufsRjnhjVSrZGXikVGHX9+cc9ERtHRV4hvBKHyZb1bg4K+56Bd2TqUn4A==}
     dependencies:
       '@types/node': 18.15.11
       kleur: 3.0.3
@@ -2740,8 +2740,8 @@ packages:
       mime-types: 2.1.35
     dev: false
 
-  /typescript/5.0.2:
-    resolution: {integrity: sha512-wVORMBGO/FAs/++blGNeAVdbNKtIh1rbBL2EyQ1+J9lClJ93KiiKe8PmFIVdXhHcyv44SL9oglmfeSsndo0jRw==}
+  /typescript/5.0.3:
+    resolution: {integrity: sha512-xv8mOEDnigb/tN9PSMTwSEqAnUvkoXMQlicOb0IUVDBSQCgBSaAAROUZYy2IcUy5qU6XajK5jjjO7TMWqBTKZA==}
     engines: {node: '>=12.20'}
     hasBin: true
     dev: false

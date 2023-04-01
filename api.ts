@@ -213,9 +213,19 @@ async function field_input(
     page: Page,
     field_name: string,
     value: string,
-    by = 'aria-label'
+    outer = ""
 ): Promise<void> {
-    const selector = `input[${by}="${field_name}"]`
+    await field_input_by(page, field_name, value, "aria-label", outer)
+}
+
+async function field_input_by(
+    page: Page,
+    field_name: string,
+    value: string,
+    by: string,
+    outer = ""
+) {
+    const selector = `${outer} input[${by}="${field_name}"]`
     await custom_field_input(page, selector, value)
 }
 
@@ -224,20 +234,20 @@ async function custom_field_input(
     selector: string,
     value: string,
 ): Promise<void> {
-    await page.click(selector)
-
     console.log('Inputting', value, 'to', selector)
+    await page.click(selector)
     await page.fill(selector, value)
     await page.press(selector, 'Enter')
 }
 
 async function get_field_value(
     page: Page,
-    field_name: string
+    field_name: string,
+    outer = ""
 ): Promise<string> {
     await wait_for_load(page)
     await sleep(500)
-    const selector = `input[aria-label="${field_name}"]`
+    const selector = `${outer} input[aria-label="${field_name}"]`
     const value = await page.$eval(selector, (el) => (el as any).value)
     console.log('Got', field_name, 'value', value)
     return value as string
@@ -310,12 +320,13 @@ async function enter_location(
         ort: string
         straße: string
         plz: string
-    }
+    },
+    outer: string
 ) {
     let plz_lst: [string, string][] | undefined = undefined
     let plz_lst_index = 0
-    while ((await get_field_value(page, 'Postleitzahl')) !== location.plz) {
-        await field_input(page, 'Ort', location.ort)
+    while ((await get_field_value(page, 'Postleitzahl', outer)) !== location.plz) {
+        await field_input(page, 'Ort', location.ort, outer)
         if (plz_lst === undefined) {
             try {
                 const table = await extract_table(
@@ -365,13 +376,14 @@ async function enter_location(
                             throw e
                         }
                         if (
-                            (await get_field_value(page, 'Postleitzahl')) !==
+                            (await get_field_value(page, 'Postleitzahl', outer)) !==
                             location.plz
                         ) {
                             await field_input(
                                 page,
                                 'Postleitzahl',
-                                location.plz
+                                location.plz,
+                                outer
                             )
                         }
                     }
@@ -385,7 +397,7 @@ async function enter_location(
             panic('One of these is likely wrong "Ort", "Plz", "Straße"')
         )
         await close_table_popup(page)
-        await field_input(page, 'Straße', location.straße)
+        await field_input(page, 'Straße', location.straße, outer)
         try {
             const table = await extract_table(
                 page,
@@ -438,7 +450,7 @@ async function handle_address_section(
             ort: form.ort,
             straße: form.straße,
             plz: form.plz,
-        })
+        }, 'div[title="Addresse Formularapplet"]')
         await field_input(page, 'Hausnummer', form.hausnummer)
         await field_input(page, 'Adresszusatz', form.adresszusatz ?? '')
     }
@@ -524,7 +536,7 @@ async function add_optional_packages(
         } catch (e) {
             if (
                 e instanceof Error &&
-                e.message.includes('page.click: Timeout')
+                e.message.includes('Timeout')
             ) {
                 break
             }
@@ -679,13 +691,13 @@ async function handle_customer_section(page: Page, form: SkyFormData) {
             form.kontoinhaber_info.split(' ').at(0) ?? panic('No first name')
         const nachname =
             form.kontoinhaber_info.split(' ').at(-1) ?? panic('No last name')
-        await field_input(
+        await field_input_by(
             page,
             'LastNameSubscriber_Label_1',
             nachname,
             'aria-labelledby'
         )
-        await field_input(
+        await field_input_by(
             page,
             'FirstNameSubscriber_Label_1',
             vorname,
@@ -699,31 +711,35 @@ async function handle_tech_section(page: Page, form: SkyFormData) {
     await go_to_section(page, 'Technik & Services')
     await page.click('button[title="Gerätemerkmale:Prüfen"]')
     if (form.abweichende_lieferadresse) {
+        const outer = 'div[title="Abweichende Lieferadresse / DHL Packstation Formularapplet"]'
         await enter_location(page, {
             ort: form.ort_liefer,
             straße: form.straße_oder_packstation_liefer,
             plz: form.plz_liefer,
-        })
+        }, outer)
         await field_input(
             page,
             'Anrede',
             form.anrede_liefer === 'keine_angabe'
                 ? ''
-                : form.anrede_liefer.toUpperCase()
+                : form.anrede_liefer.toUpperCase(),
+            outer
         )
         await field_input(
             page,
             'Titel',
             form.titel_liefer === 'Kein_Titel'
                 ? ''
-                : form.titel_liefer.toUpperCase()
+                : form.titel_liefer.toUpperCase(),
+            outer
         )
-        await field_input(page, 'Vorname', form.vorname_liefer)
-        await field_input(page, 'Name', form.nachname_liefer)
+        await field_input(page, 'Vorname', form.vorname_liefer, outer)
+        await field_input(page, 'Name', form.nachname_liefer, outer)
         await field_input(
             page,
             'DHL Postnummer/Adresszusatz',
-            form.hausnummer_oder_dhl_kundennummer_liefer
+            form.hausnummer_oder_dhl_kundennummer_liefer,
+            outer
         )
     }
 }
