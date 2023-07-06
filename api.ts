@@ -215,6 +215,9 @@ async function field_input(
     value: string,
     outer = ""
 ): Promise<void> {
+    if (value === undefined) {
+        return
+    }
     await field_input_by(page, field_name, value, "aria-label", outer)
 }
 
@@ -596,7 +599,7 @@ async function handle_contract_section(
         const obj = Object.fromEntries(
             table.map((row) => [row?.[2]?.[0], row?.[2]?.[1]])
         )
-        await page.click(obj['12970'] ?? panic('Angebot not found'))
+        await page.click(obj['13014'] ?? panic('Angebot not found'))
         await close_table_popup(page)
     }
     {
