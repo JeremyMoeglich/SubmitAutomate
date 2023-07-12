@@ -236,7 +236,8 @@ function to_form_data(text: string): SkyFormData {
         const premium_string = options[0] ?? error('No premium string')
         const sect1 =
             premium_string.split(' --> ')[0] ?? error('Invalid premium string')
-        const package_names = sect1.split(' + ').slice(1)
+        const sect2 = sect1.split(" inkl.")[0] ?? sect1;
+        const package_names = sect2.split(' + ').slice(1)
         const package_clite = clite(
             ['cinema', 'sport', 'bundesliga'],
             'premium_package'

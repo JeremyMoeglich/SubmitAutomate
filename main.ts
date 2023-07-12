@@ -21,6 +21,8 @@ const { email, log_directory } = z
 
 const forms = await get_recent_forms(false)
 
+console.log(forms)
+
 const form =
     forms.find((f) => f.form.email === email) ?? panic("Email doesn't exist")
 
