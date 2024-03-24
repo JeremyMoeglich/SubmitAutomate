@@ -36,6 +36,8 @@ async function ensure_login(page: Page): Promise<void> {
         process.env.SIEBEL_PASSWORD ?? panic('SIEBEL_PASSWORD not set')
     )
     await page.click('#s_swepi_22')
+    await sleep(1000)
+    await page.reload()
 }
 
 export async function popup_prevent(page: Page): Promise<void> {
@@ -482,8 +484,8 @@ function convert_base_package(package_id: base_package_set | '') {
 
 async function add_optional_package(page: Page, option_name: zubuchoption_id) {
     const names: Partial<Record<zubuchoption_id, string>> = {
-        dazn_yearly: 'DAZN 12M 18,99€',
-        dazn_monthly: 'DAZN 1M 29,99€',
+        dazn_yearly: 'DAZN 12M 29,99€',
+        // dazn_monthly: 'DAZN 1M 29,99€',
         hdplus: 'HD+ 1 MONAT 6€ PRESELECT',
         multiscreen: 'MULTISCREEN SERVICE',
         plus18: 'BLUE MOVIE/SELECT18+ DUMMY',
@@ -599,7 +601,7 @@ async function handle_contract_section(
         const obj = Object.fromEntries(
             table.map((row) => [row?.[2]?.[0], row?.[2]?.[1]])
         )
-        await page.click(obj['13014'] ?? panic('Angebot not found'))
+        await page.click(obj['13104'] ?? panic(`Angebot not found, expected ${Object.keys(obj)}`))
         await close_table_popup(page)
     }
     {
@@ -640,7 +642,8 @@ async function handle_customer_section(page: Page, form: SkyFormData) {
     )
     await field_input(page, 'Geburtsdatum (TT/MM/JJJJ)', form.geburtsdatum)
     await field_input(page, 'E-Mail', form.email)
-    await field_input(page, 'Telefonnummer 1', form.telefon)
+    const telep = form.telefon.startsWith("49") ? "0" + form.telefon.slice(2) : form.telefon
+    await field_input(page, 'Telefonnummer 1', telep)
     if (form.telefon_weitere.length >= 1) {
         await field_input(
             page,
