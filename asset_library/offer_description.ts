@@ -1,3 +1,4 @@
+ const aboformular = 'https://fd10.formdesk.com/tagaro/Sky-Bestellung-5';
 import { index_by } from 'functional-utilities';
 import { intersection as intersect, isEqual, sortBy } from 'lodash-es';
 import type { package_id } from './assets/packages';
@@ -6,7 +7,6 @@ import type { zubuchoption_id } from './assets/zubuchoptionen';
 import type { asset_id, priceable_asset_id } from './asset_types';
 import type { Price } from './priceable_asset_types';
 import { asset_sets } from './sets';
-import { bonus } from './prices';
 
 export type package_set_id = 'all' | 'premium' | 'base' | package_id;
 export type base_package_set = 'entertainment' | 'entertainmentplus';
@@ -42,7 +42,7 @@ export const offer_ids = ['opt1'] as const;
 
 export type offer_id = (typeof offer_ids)[number];
 
-const text_descriptions = '✓ {savings} Preisvorteil';
+const text_descriptions = '✓ {savings} Sparvorteil';
 
 export const offer_descriptions: offer_descriptions_type = [
 	/*{
@@ -143,7 +143,7 @@ export const offer_descriptions: offer_descriptions_type = [
 		id: 'opt1',
 		aktivierung: 0,
 		conditions: [],
-		bonus: bonus,
+		bonus: 20,
 		short_text: text_descriptions,
 		long_text: text_descriptions,
 		actions: [],
@@ -155,8 +155,8 @@ export const offer_descriptions: offer_descriptions_type = [
 
 			[['entertainmentplus'], { jahr: 15 }],
 			[['entertainmentplus', 'cinema'], { jahr: 25 }],
-			[['entertainmentplus', 'bundesliga'], { jahr: 30 }],
 			[['entertainmentplus', 'sport'], { jahr: 25 }],
+			[['entertainmentplus', 'bundesliga'], { jahr: 30 }],
 			[['entertainmentplus', 'sport', 'bundesliga'], { jahr: 35 }],
 			[['entertainmentplus', 'cinema', 'sport', 'bundesliga'], { jahr: 40 }]
 		],
@@ -168,12 +168,15 @@ export const empty_offer: offer_description_type = {
 	id: '',
 	aktivierung: 0,
 	conditions: [],
-	bonus: bonus,
+	bonus: 20,
 	short_text: '',
 	long_text: '',
 	actions: [],
-	route: "https://fd10.formdesk.com/tagaro/Sky-Bestellung-5",
-	overwrites: []
+	route: aboformular,
+	overwrites: [
+		[["entertainment", "cinema", "sport", "bundesliga"], { "jahr": 50 }],
+		[["entertainmentplus", "cinema", "sport", "bundesliga"], { "jahr": 59 }],
+	]
 };
 
 export const indexed_offers = index_by(offer_descriptions, 'id');

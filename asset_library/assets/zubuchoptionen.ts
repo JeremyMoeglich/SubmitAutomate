@@ -16,14 +16,15 @@ export const zubuchoption_ids = [
 	'netflixstandard',
 	'netflixpremium',
 	'hdplus4monategratis',
-	'hdplus'
+	'hdplus',
+	'dyn'
 ] as const;
 
 export type zubuchoption_id = (typeof zubuchoption_ids)[number];
 
 const zubuchoption_image_location = '/images/assets/zubuchoptionen/';
 
-const dazn_yearly_price = { jahr: 24.99, monat: 44.99, singular: 0 } satisfies Price;
+const dazn_yearly_price = { jahr: 29.99, monat: 44.99, singular: 0 } satisfies Price;
 
 export const zubuchoptionen_assets: ReadonlyArray<Priceable_Asset<zubuchoption_id>> = [
 	{
@@ -69,6 +70,22 @@ export const zubuchoptionen_assets: ReadonlyArray<Priceable_Asset<zubuchoption_i
 		senders: []
 	},
 	{
+		id: 'dyn',
+		price: { jahr: 12.5, monat: 14.5, singular: 0 },
+		name: `Dyn`,
+		note: '[TODO]',
+		image: {
+			normal: `${zubuchoption_image_location}skygoplus.png`
+		},
+		selector: {
+			type: 'AND',
+			selectors: []
+		},
+		aspects: [],
+		sort_priority: 7,
+		senders: []
+	},
+	{
 		id: 'dazn_unlimited',
 		price: dazn_yearly_price,
 		name: 'DAZN Unlimited',
@@ -98,7 +115,7 @@ export const zubuchoptionen_assets: ReadonlyArray<Priceable_Asset<zubuchoption_i
 	},
 	{
 		id: 'multiscreen',
-		price: { jahr: 10, monat: 10, singular: 0 },
+		price: { jahr: 15, monat: 15, singular: 0 },
 		name: 'Multiscreen',
 		note: '[TODO]',
 		image: {

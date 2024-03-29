@@ -39,10 +39,6 @@ export type SkyFormData = {
       }
     | {
           abweichende_lieferadresse: true
-          anrede_liefer: 'herr' | 'frau' | 'keine_angabe'
-          titel_liefer: title
-          vorname_liefer: string
-          nachname_liefer: string
           firma_liefer?: string
           straße_oder_packstation_liefer: string
           hausnummer_oder_dhl_kundennummer_liefer: string

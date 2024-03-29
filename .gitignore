@@ -5,3 +5,4 @@ get_emails/cache.json
 recent_forms.json
 data.txt
 __pycache__/
+venv
