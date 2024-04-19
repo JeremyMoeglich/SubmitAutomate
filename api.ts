@@ -606,7 +606,7 @@ async function handle_contract_section(
 			table.map((row) => [row?.[2]?.[0], row?.[2]?.[1]]),
 		);
 		await page.click(
-			obj["13104"] ??
+			obj["13123"] ??
 				panic(
 					`Angebot not found, expected one of [${Object.keys(obj).join(", ")}]`,
 				),
